@@ -1,0 +1,95 @@
+{
+  "status": "ok",
+  "data": [
+    {
+      "Created": 1701469087,
+      "Name": "Goop",
+      "MemberCapacity": 75,
+      "DepositedDiamonds": 1073977795,
+      "CountryCode": "US",
+      "Members": 74,
+      "Points": 147646
+    },
+    {
+      "Created": 1701501524,
+      "Name": "HIPM",
+      "MemberCapacity": 75,
+      "DepositedDiamonds": 4148056938,
+      "CountryCode": "US",
+      "Members": 74,
+      "Points": 112638
+    },
+    {
+      "Created": 1708756069,
+      "Name": "DOLA",
+      "CountryCode": "US",
+      "MemberCapacity": 75,
+      "DepositedDiamonds": 308852677,
+      "Members": 74,
+      "Points": 96952
+    },
+    {
+      "Created": 1701472975,
+      "Name": "GANG",
+      "MemberCapacity": 75,
+      "DepositedDiamonds": 8063513829,
+      "CountryCode": "US",
+      "Members": 74,
+      "Points": 84242
+    },
+    {
+      "Created": 1702641421,
+      "Name": "fr3e",
+      "MemberCapacity": 75,
+      "DepositedDiamonds": 288889382,
+      "CountryCode": "NZ",
+      "Members": 73,
+      "Points": 71045
+    },
+    {
+      "Created": 1708722773,
+      "Name": "DRFT",
+      "CountryCode": "CA",
+      "MemberCapacity": 75,
+      "DepositedDiamonds": 1172408908,
+      "Members": 74,
+      "Points": 65495
+    },
+    {
+      "Created": 1701511566,
+      "Name": "VLP",
+      "MemberCapacity": 75,
+      "DepositedDiamonds": 1327160087,
+      "CountryCode": "CZ",
+      "Members": 74,
+      "Points": 63948
+    },
+    {
+      "Created": 1701461893,
+      "Name": "DV_",
+      "MemberCapacity": 75,
+      "DepositedDiamonds": 1159289787,
+      "CountryCode": "US",
+      "Members": 74,
+      "Points": 63555
+    },
+    {
+      "Created": 1701497586,
+      "Name": "SOUP",
+      "MemberCapacity": 75,
+      "DepositedDiamonds": 3575531296,
+      "CountryCode": "CA",
+      "Members": 74,
+      "Points": 58777
+    },
+    {
+      "Created": 1701488515,
+      "Name": "FMLY",
+      "MemberCapacity": 75,
+      "DepositedDiamonds": 3714419270,
+      "CountryCode": "US",
+      "Members": 74,
+      "Points": 56122
+    }
+  ]
+}
