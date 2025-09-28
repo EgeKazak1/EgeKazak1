@@ -1,75 +1,172 @@
--- Brookhaven Local Script Template (Kendi menünü ekleyebilmen için sade ve açık kod)
+-- Cartola Hub V4 - Premium Menü Template
+
 local Players = game:GetService("Players")
 local player = Players.LocalPlayer
 
--- Basit bir GUI menüsü
+-- GUI oluştur
 local ScreenGui = Instance.new("ScreenGui", player.PlayerGui)
-ScreenGui.Name = "CustomBrookhavenMenu"
+ScreenGui.Name = "CartolaHubV4Menu"
+ScreenGui.ResetOnSpawn = false
 
-local Frame = Instance.new("Frame", ScreenGui)
-Frame.Size = UDim2.new(0, 300, 0, 200)
-Frame.Position = UDim2.new(0.5, -150, 0.5, -100)
-Frame.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
-Frame.BorderSizePixel = 0
+-- Menü ana çerçevesi
+local MainFrame = Instance.new("Frame", ScreenGui)
+MainFrame.BackgroundColor3 = Color3.fromRGB(35, 35, 35)
+MainFrame.Size = UDim2.new(0, 400, 0, 300)
+MainFrame.Position = UDim2.new(0.5, -200, 0.5, -150)
+MainFrame.Visible = false
+MainFrame.Active = true
+MainFrame.Draggable = true -- Hareket ettirilebilir
 
-local Title = Instance.new("TextLabel", Frame)
-Title.Text = "Brookhaven Custom Menu"
-Title.Size = UDim2.new(1, 0, 0, 40)
+MainFrame.BorderSizePixel = 0
+MainFrame.BackgroundTransparency = 0.08
+
+-- Yuvarlatılmış köşeler
+local UICorner = Instance.new("UICorner", MainFrame)
+UICorner.CornerRadius = UDim.new(0, 15)
+
+-- Üst bar
+local TopBar = Instance.new("Frame", MainFrame)
+TopBar.Size = UDim2.new(1, 0, 0, 40)
+TopBar.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
+TopBar.BorderSizePixel = 0
+local TopBarCorner = Instance.new("UICorner", TopBar)
+TopBarCorner.CornerRadius = UDim.new(0, 15)
+
+-- Başlık
+local Title = Instance.new("TextLabel", TopBar)
+Title.Text = "Cartola Hub V4"
+Title.Size = UDim2.new(1, -80, 1, 0)
+Title.Position = UDim2.new(0, 10, 0, 0)
 Title.BackgroundTransparency = 1
 Title.TextColor3 = Color3.fromRGB(255, 255, 255)
-Title.Font = Enum.Font.SourceSansBold
+Title.Font = Enum.Font.GothamBold
 Title.TextSize = 22
 
--- "Get Premium" butonu
-local PremiumBtn = Instance.new("TextButton", Frame)
-PremiumBtn.Text = "Get Premium"
-PremiumBtn.Size = UDim2.new(0.8, 0, 0, 40)
-PremiumBtn.Position = UDim2.new(0.1, 0, 0, 60)
-PremiumBtn.BackgroundColor3 = Color3.fromRGB(100, 200, 80)
-PremiumBtn.TextColor3 = Color3.fromRGB(30, 30, 30)
-PremiumBtn.Font = Enum.Font.SourceSans
-PremiumBtn.TextSize = 20
-
-PremiumBtn.MouseButton1Click:Connect(function()
-    -- Premium alma işlemi buraya eklenecek
-    print("Premium özelliği alındı!")
-    -- Kendi premium kodunu buraya ekleyebilirsin
-end)
-
--- Ekstra butonlar ekleyebilirsin:
-local AnotherBtn = Instance.new("TextButton", Frame)
-AnotherBtn.Text = "Başka Özellik"
-AnotherBtn.Size = UDim2.new(0.8, 0, 0, 40)
-AnotherBtn.Position = UDim2.new(0.1, 0, 0, 110)
-AnotherBtn.BackgroundColor3 = Color3.fromRGB(80, 120, 200)
-AnotherBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
-AnotherBtn.Font = Enum.Font.SourceSans
-AnotherBtn.TextSize = 20
-
-AnotherBtn.MouseButton1Click:Connect(function()
-    print("Başka özellik çalıştı!")
-    -- Buraya kendi kodunu ekle
-end)
-
--- Menüyi kapatma
-local CloseBtn = Instance.new("TextButton", Frame)
-CloseBtn.Text = "Kapat"
-CloseBtn.Size = UDim2.new(0.4, 0, 0, 30)
-CloseBtn.Position = UDim2.new(0.3, 0, 1, -35)
-CloseBtn.BackgroundColor3 = Color3.fromRGB(200, 50, 50)
-CloseBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
-CloseBtn.Font = Enum.Font.SourceSans
+-- X (Kapatma) butonu
+local CloseBtn = Instance.new("TextButton", TopBar)
+CloseBtn.Text = "X"
+CloseBtn.Size = UDim2.new(0, 40, 0, 40)
+CloseBtn.Position = UDim2.new(1, -40, 0, 0)
+CloseBtn.BackgroundColor3 = Color3.fromRGB(200, 60, 60)
+CloseBtn.TextColor3 = Color3.fromRGB(255,255,255)
+CloseBtn.Font = Enum.Font.GothamBold
 CloseBtn.TextSize = 18
+local CloseUICorner = Instance.new("UICorner", CloseBtn)
+CloseUICorner.CornerRadius = UDim.new(0, 10)
 
 CloseBtn.MouseButton1Click:Connect(function()
-    ScreenGui:Destroy()
+    MainFrame.Visible = false
+    OpenBtn.Visible = true
 end)
 
--- Diğer özelliklerinizi eklemek için yukarıdaki buton örneklerini çoğaltabilirsiniz.
+-- Büyütme / Küçültme butonu
+local ResizeBtn = Instance.new("TextButton", TopBar)
+ResizeBtn.Text = "⛶"
+ResizeBtn.Size = UDim2.new(0, 40, 0, 40)
+ResizeBtn.Position = UDim2.new(1, -80, 0, 0)
+ResizeBtn.BackgroundColor3 = Color3.fromRGB(60, 120, 200)
+ResizeBtn.TextColor3 = Color3.fromRGB(255,255,255)
+ResizeBtn.Font = Enum.Font.GothamBold
+ResizeBtn.TextSize = 18
+local ResizeUICorner = Instance.new("UICorner", ResizeBtn)
+ResizeUICorner.CornerRadius = UDim.new(0, 10)
 
--- Premium özelliği örneği:
-function getPremium()
-    -- Premium özelliği aktif edilir
-    print("Premium aktif!")
-    -- Premium özellik kodunu buraya ekle
+local isFull = false
+ResizeBtn.MouseButton1Click:Connect(function()
+    if isFull then
+        MainFrame.Size = UDim2.new(0, 400, 0, 300)
+        MainFrame.Position = UDim2.new(0.5, -200, 0.5, -150)
+        isFull = false
+    else
+        MainFrame.Size = UDim2.new(0.7, 0, 0.8, 0)
+        MainFrame.Position = UDim2.new(0.15, 0, 0.1, 0)
+        isFull = true
+    end
+end)
+
+-- Menü açma butonu (haraket ettirilebilir)
+local OpenBtn = Instance.new("TextButton", ScreenGui)
+OpenBtn.Text = "Cartola Hub V4"
+OpenBtn.Size = UDim2.new(0, 180, 0, 40)
+OpenBtn.Position = UDim2.new(0, 30, 0.5, -20)
+OpenBtn.BackgroundColor3 = Color3.fromRGB(80, 180, 80)
+OpenBtn.TextColor3 = Color3.fromRGB(255,255,255)
+OpenBtn.Font = Enum.Font.GothamBold
+OpenBtn.TextSize = 20
+OpenBtn.Active = true
+OpenBtn.Draggable = true
+local OpenBtnCorner = Instance.new("UICorner", OpenBtn)
+OpenBtnCorner.CornerRadius = UDim.new(0, 10)
+
+OpenBtn.MouseButton1Click:Connect(function()
+    MainFrame.Visible = true
+    OpenBtn.Visible = false
+end)
+
+-- Alt içerik alanı
+local ContentFrame = Instance.new("Frame", MainFrame)
+ContentFrame.Size = UDim2.new(1, -40, 1, -60)
+ContentFrame.Position = UDim2.new(0, 20, 0, 50)
+ContentFrame.BackgroundTransparency = 1
+
+-- Premium (Tüm Gamepass) Butonu
+local PremiumBtn = Instance.new("TextButton", ContentFrame)
+PremiumBtn.Text = "Get Premium (All Gamepass)"
+PremiumBtn.Size = UDim2.new(1, 0, 0, 50)
+PremiumBtn.Position = UDim2.new(0, 0, 0, 0)
+PremiumBtn.BackgroundColor3 = Color3.fromRGB(255, 215, 0)
+PremiumBtn.TextColor3 = Color3.fromRGB(30, 30, 30)
+PremiumBtn.Font = Enum.Font.GothamBold
+PremiumBtn.TextSize = 20
+local PremiumUICorner = Instance.new("UICorner", PremiumBtn)
+PremiumUICorner.CornerRadius = UDim.new(0, 8)
+
+-- Gerçek premium alma fonksiyonu (örnek, Cartola Hub'daki gibi)
+PremiumBtn.MouseButton1Click:Connect(function()
+    -- Brookhaven'da tüm gamepassları "fake" aktif etme örneği
+    local passes = {
+        "Premium", "SWAT", "Criminal", "Firefighter", "VIP", "Star", "Music", "Estate", "Horse", "Helicopter"
+    }
+    for i,pass in pairs(passes) do
+        if player:FindFirstChild("Gamepasses") then
+            local gp = player.Gamepasses:FindFirstChild(pass)
+            if gp then gp.Value = true end
+        end
+    end
+    print("Tüm gamepasslar aktif edildi (fake)!")
+    -- Gerçek script eklemek için kendi Cartola Hub fonksiyonunu buraya koyabilirsin!
+end)
+
+-- Ek script butonları (örnek, istediğin kadar çoğaltabilirsin)
+local function addScriptButton(name, yPos, callback)
+    local btn = Instance.new("TextButton", ContentFrame)
+    btn.Text = name
+    btn.Size = UDim2.new(1, 0, 0, 40)
+    btn.Position = UDim2.new(0, 0, 0, yPos)
+    btn.BackgroundColor3 = Color3.fromRGB(60, 60, 160)
+    btn.TextColor3 = Color3.fromRGB(255,255,255)
+    btn.Font = Enum.Font.GothamBold
+    btn.TextSize = 18
+    local btnCorner = Instance.new("UICorner", btn)
+    btnCorner.CornerRadius = UDim.new(0, 6)
+    btn.MouseButton1Click:Connect(callback)
+    return btn
 end
+
+-- Örnek kullanımlar:
+addScriptButton("Brookhaven ESP", 60, function()
+    print("Brookhaven ESP açıldı!")
+    -- Buraya Cartola Hub V4 ESP scriptini ekleyebilirsin
+end)
+
+addScriptButton("Brookhaven Fly", 110, function()
+    print("Brookhaven Fly açıldı!")
+    -- Buraya Cartola Hub V4 Fly scriptini ekleyebilirsin
+end)
+
+addScriptButton("Brookhaven TP", 160, function()
+    print("Brookhaven TP açıldı!")
+    -- Buraya Cartola Hub V4 TP scriptini ekleyebilirsin
+end)
+
+-- Menüde istediğin kadar buton ekleyebilirsin!
