@@ -1,3 +1,6 @@
+-- Inline loadstring: komple scripti string içinde barındırır ve hemen çalıştırır.
+-- Bunu bir LocalScript içine yapıştırabilirsin (StarterPlayerScripts).
+local code = [[
 -- Local demo menu (client-side only) 
 -- Put this LocalScript into StarterPlayerScripts
 
@@ -387,3 +390,12 @@ end)
 
 -- done
 notify("Demo Menü Yüklendi", "Örnek menü hazır. Bu menü sadece istemci tarafında çalışır ve hile amaçlı değildir.", 4)
+]]
+
+-- execute the string
+local fn = loadstring(code)
+if fn then
+	pcall(fn)
+else
+	warn("loadstring yok veya yüklenemedi.")
+end
