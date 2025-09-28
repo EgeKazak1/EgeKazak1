@@ -1,3 +1,6 @@
+-- LocalScript olarak StarterPlayerScripts içine yapıştır
+-- Bu script loadstring ile gömülü demo menüyü çalıştırır (client-side demo).
+local code = [[
 -- Full enhanced demo admin menu (client-only)
 -- Put this LocalScript into StarterPlayerScripts
 
@@ -471,3 +474,21 @@ end)
 
 -- final notification
 notify("Demo Menü Yüklendi", "Güncellenmiş menü yüklendi — tüm işlemler client-side demo niteliğindedir.", 4)
+]]
+
+-- try loadstring or load
+local fn
+if loadstring then
+	fn = loadstring(code)
+elseif load then
+	fn = load(code)
+end
+
+if fn then
+	local ok, err = pcall(fn)
+	if not ok then
+		warn("Demo menü yüklenirken hata: ", err)
+	end
+else
+	warn("loadstring veya load kullanılabilir değil. Alternatif: scripti doğrudan bir LocalScript içine yapıştır.")
+end
