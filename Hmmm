@@ -1,95 +1,495 @@
-{
-  "status": "ok",
-  "data": [
-    {
-      "Created": 1701469087,
-      "Name": "Goop",
-      "MemberCapacity": 75,
-      "DepositedDiamonds": 1073977795,
-      "CountryCode": "US",
-      "Members": 74,
-      "Points": 147646
-    },
-    {
-      "Created": 1701501524,
-      "Name": "HIPM",
-      "MemberCapacity": 75,
-      "DepositedDiamonds": 4148056938,
-      "CountryCode": "US",
-      "Members": 74,
-      "Points": 112638
-    },
-    {
-      "Created": 1708756069,
-      "Name": "DOLA",
-      "CountryCode": "US",
-      "MemberCapacity": 75,
-      "DepositedDiamonds": 308852677,
-      "Members": 74,
-      "Points": 96952
-    },
-    {
-      "Created": 1701472975,
-      "Name": "GANG",
-      "MemberCapacity": 75,
-      "DepositedDiamonds": 8063513829,
-      "CountryCode": "US",
-      "Members": 74,
-      "Points": 84242
-    },
-    {
-      "Created": 1702641421,
-      "Name": "fr3e",
-      "MemberCapacity": 75,
-      "DepositedDiamonds": 288889382,
-      "CountryCode": "NZ",
-      "Members": 73,
-      "Points": 71045
-    },
-    {
-      "Created": 1708722773,
-      "Name": "DRFT",
-      "CountryCode": "CA",
-      "MemberCapacity": 75,
-      "DepositedDiamonds": 1172408908,
-      "Members": 74,
-      "Points": 65495
-    },
-    {
-      "Created": 1701511566,
-      "Name": "VLP",
-      "MemberCapacity": 75,
-      "DepositedDiamonds": 1327160087,
-      "CountryCode": "CZ",
-      "Members": 74,
-      "Points": 63948
-    },
-    {
-      "Created": 1701461893,
-      "Name": "DV_",
-      "MemberCapacity": 75,
-      "DepositedDiamonds": 1159289787,
-      "CountryCode": "US",
-      "Members": 74,
-      "Points": 63555
-    },
-    {
-      "Created": 1701497586,
-      "Name": "SOUP",
-      "MemberCapacity": 75,
-      "DepositedDiamonds": 3575531296,
-      "CountryCode": "CA",
-      "Members": 74,
-      "Points": 58777
-    },
-    {
-      "Created": 1701488515,
-      "Name": "FMLY",
-      "MemberCapacity": 75,
-      "DepositedDiamonds": 3714419270,
-      "CountryCode": "US",
-      "Members": 74,
-      "Points": 56122
-    }
-  ]
+-- Local GUI: Draggable top button + animated menu + demo buttons
+-- Put this LocalScript into StarterPlayer -> StarterPlayerScripts
+-- Completely client-side demo. No server calls. No exploits.
+
+local Players = game:GetService("Players")
+local TweenService = game:GetService("TweenService")
+local UserInputService = game:GetService("UserInputService")
+
+local player = Players.LocalPlayer
+local playerGui = player:WaitForChild("PlayerGui")
+
+-- Settings
+local BTN_SIZE = UDim2.new(0,64,0,64)
+local MENU_WIDTH = 360
+local MENU_HEIGHT = 380
+local TWEEN_TIME = 0.28
+local TITLE_FONT = Enum.Font.GothamBold
+
+-- Create ScreenGui
+local screenGui = Instance.new("ScreenGui")
+screenGui.Name = "VideoStyleMenuGUI"
+screenGui.ResetOnSpawn = false
+screenGui.Parent = playerGui
+
+-- Top draggable button (floating)
+local floatBtn = Instance.new("TextButton")
+floatBtn.Name = "FloatButton"
+floatBtn.Size = BTN_SIZE
+floatBtn.Position = UDim2.new(0, 12, 0, 12)
+floatBtn.AnchorPoint = Vector2.new(0,0)
+floatBtn.BackgroundColor3 = Color3.fromRGB(40,40,60)
+floatBtn.BorderSizePixel = 0
+floatBtn.AutoButtonColor = false
+floatBtn.Text = "≡"
+floatBtn.Font = Enum.Font.SourceSansBold
+floatBtn.TextSize = 28
+floatBtn.TextColor3 = Color3.fromRGB(245,245,245)
+floatBtn.Parent = screenGui
+floatBtn.ZIndex = 10
+floatBtn.Active = true
+
+-- small indicator (dot)
+local dot = Instance.new("Frame", floatBtn)
+dot.Name = "Dot"
+dot.Size = UDim2.new(0,10,0,10)
+dot.Position = UDim2.new(0.5, 12, 0.5, -5)
+dot.AnchorPoint = Vector2.new(0.5,0.5)
+dot.BackgroundColor3 = Color3.fromRGB(255,200,50)
+dot.BorderSizePixel = 0
+dot.Visible = true
+
+-- Main menu frame (hidden by default)
+local menu = Instance.new("Frame")
+menu.Name = "MainMenu"
+menu.Size = UDim2.new(0, MENU_WIDTH, 0, MENU_HEIGHT)
+menu.Position = UDim2.new(0, 12, 0, 86) -- opens under floatBtn
+menu.AnchorPoint = Vector2.new(0,0)
+menu.BackgroundColor3 = Color3.fromRGB(22,22,28)
+menu.BorderSizePixel = 0
+menu.ClipsDescendants = true
+menu.Visible = true -- we'll hide with tween (alpha)
+menu.Parent = screenGui
+menu.ZIndex = 9
+menu.BackgroundTransparency = 1 -- start hidden
+
+-- menu inner shadow / panel
+local inner = Instance.new("Frame", menu)
+inner.Name = "Inner"
+inner.Size = UDim2.new(1, -8, 1, -8)
+inner.Position = UDim2.new(0,4,0,4)
+inner.BackgroundColor3 = Color3.fromRGB(28,28,36)
+inner.BorderSizePixel = 0
+inner.AnchorPoint = Vector2.new(0,0)
+inner.ClipsDescendants = true
+inner.BackgroundTransparency = 0
+
+-- Title
+local title = Instance.new("TextLabel", inner)
+title.Name = "Title"
+title.Size = UDim2.new(1, -20, 0, 36)
+title.Position = UDim2.new(0, 10, 0, 8)
+title.BackgroundTransparency = 1
+title.Font = TITLE_FONT
+title.TextSize = 18
+title.TextColor3 = Color3.fromRGB(230,230,230)
+title.TextXAlignment = Enum.TextXAlignment.Left
+title.Text = "Menu"
+
+-- Close button (X)
+local closeBtn = Instance.new("TextButton", inner)
+closeBtn.Name = "Close"
+closeBtn.Size = UDim2.new(0,36,0,26)
+closeBtn.Position = UDim2.new(1, -46, 0, 10)
+closeBtn.BackgroundTransparency = 1
+closeBtn.Text = "X"
+closeBtn.Font = Enum.Font.SourceSansBold
+closeBtn.TextSize = 18
+closeBtn.TextColor3 = Color3.fromRGB(200,200,200)
+closeBtn.AutoButtonColor = false
+
+-- Container for buttons (UIListLayout)
+local btnContainer = Instance.new("ScrollingFrame", inner)
+btnContainer.Name = "ButtonsScroll"
+btnContainer.Size = UDim2.new(1, -24, 1, -64)
+btnContainer.Position = UDim2.new(0,12,0,52)
+btnContainer.BackgroundTransparency = 1
+btnContainer.ScrollBarThickness = 6
+btnContainer.CanvasSize = UDim2.new(0,0,0,0)
+btnContainer.BorderSizePixel = 0
+
+local uiList = Instance.new("UIListLayout", btnContainer)
+uiList.Padding = UDim.new(0,10)
+uiList.SortOrder = Enum.SortOrder.LayoutOrder
+
+local uiPadding = Instance.new("UIPadding", btnContainer)
+uiPadding.PaddingTop = UDim.new(0,4)
+uiPadding.PaddingBottom = UDim.new(0,10)
+uiPadding.PaddingLeft = UDim.new(0,4)
+
+-- Helper: create styled button
+local function makeButton(name, labelText, layoutOrder)
+	local b = Instance.new("TextButton")
+	b.Name = name
+	b.Size = UDim2.new(1, -4, 0, 44)
+	b.BackgroundColor3 = Color3.fromRGB(40,40,50)
+	b.BorderSizePixel = 0
+	b.Font = Enum.Font.GothamBold
+	b.TextSize = 16
+	b.TextColor3 = Color3.fromRGB(240,240,240)
+	b.Text = labelText
+	b.AutoButtonColor = false
+
+	b.LayoutOrder = layoutOrder or 1
+
+	-- hover effect
+	b.MouseEnter:Connect(function()
+		TweenService:Create(b, TweenInfo.new(0.15, Enum.EasingStyle.Quad), {BackgroundTransparency = 0.15}):Play()
+	end)
+	b.MouseLeave:Connect(function()
+		TweenService:Create(b, TweenInfo.new(0.18, Enum.EasingStyle.Quad), {BackgroundTransparency = 0}):Play()
+	end)
+
+	return b
+end
+
+-- Create the buttons (video-like list)
+local buttonsSpec = {
+	{"GetPremium", "Get Premium"},
+	{"FastNEW", "FastNEW"},
+	{"Basic", "Basic"},
+	{"Paste", "Paste"},
+	{"CopyLink", "Copy Link"},
+	{"GetKey", "Get Key"},
+	{"VerifyKey", "Verify Key"},
+	{"OpenEditor", "Open Editor"},
+	{"Settings", "Settings"},
 }
+
+for i, spec in ipairs(buttonsSpec) do
+	local btn = makeButton(spec[1], spec[2], i)
+	btn.Parent = btnContainer
+end
+
+-- update canvas size
+local function updateCanvas()
+	local total = 0
+	for _,v in ipairs(btnContainer:GetChildren()) do
+		if v:IsA("GuiObject") and v.LayoutOrder then
+			total = total + v.AbsoluteSize.Y + uiList.Padding.Offset
+		end
+	end
+	btnContainer.CanvasSize = UDim2.new(0,0,0, total + 10)
+end
+
+-- initial canvas update after layout
+delay(0.05, updateCanvas)
+
+-- local demo state
+local isLocalPremium = false
+local menuOpen = false
+
+-- Animations: open/close menu
+local function openMenu()
+	if menuOpen then return end
+	menuOpen = true
+	menu.Visible = true
+	-- fade in main and slide
+	TweenService:Create(menu, TweenInfo.new(TWEEN_TIME, Enum.EasingStyle.Quad), {BackgroundTransparency = 0}):Play()
+	TweenService:Create(inner, TweenInfo.new(TWEEN_TIME, Enum.EasingStyle.Quad), {BackgroundTransparency = 0}):Play()
+	-- pulse dot
+	if dot then
+		TweenService:Create(dot, TweenInfo.new(0.4, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut, -1, true), {Size = UDim2.new(0,12,0,12)}):Play()
+	end
+end
+
+local function closeMenu()
+	if not menuOpen then return end
+	menuOpen = false
+	TweenService:Create(menu, TweenInfo.new(TWEEN_TIME, Enum.EasingStyle.Quad), {BackgroundTransparency = 1}):Play()
+	TweenService:Create(inner, TweenInfo.new(TWEEN_TIME, Enum.EasingStyle.Quad), {BackgroundTransparency = 1}):Play()
+	if dot then dot.Size = UDim2.new(0,10,0,10) end
+	-- hide after a bit
+	delay(TWEEN_TIME + 0.05, function()
+		if not menuOpen then
+			menu.Visible = true -- keep visible but transparent; that's fine
+		end
+	end)
+end
+
+-- Toggle open on float button click
+floatBtn.MouseButton1Click:Connect(function()
+	if menuOpen then closeMenu() else openMenu() end
+end)
+
+-- Close button in menu
+closeBtn.MouseButton1Click:Connect(closeMenu)
+
+-- Dragging logic for floatBtn
+local dragging = false
+local dragStartPos
+local startPos
+
+floatBtn.InputBegan:Connect(function(input)
+	if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+		dragging = true
+		dragStartPos = input.Position
+		startPos = floatBtn.Position
+		input.Changed:Connect(function()
+			if input.UserInputState == Enum.UserInputState.End then
+				dragging = false
+			end
+		end)
+	end
+end)
+
+floatBtn.InputChanged:Connect(function(input)
+	if input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch then
+		-- handled in RenderStepped
+	end
+end)
+
+-- Move floatBtn smoothly
+local runConn
+runConn = game:GetService("RunService").RenderStepped:Connect(function()
+	if dragging and dragStartPos and startPos then
+		local mousePos = UserInputService:GetMouseLocation() -- screen pixel
+		-- convert to scale
+		local scaleX = (mousePos.X - dragStartPos.X) / (playerGui.AbsoluteSize.X)
+		local scaleY = (mousePos.Y - dragStartPos.Y) / (playerGui.AbsoluteSize.Y)
+		local newPos = UDim2.new(startPos.X.Scale, startPos.X.Offset + (mousePos.X - dragStartPos.X),
+			startPos.Y.Scale, startPos.Y.Offset + (mousePos.Y - dragStartPos.Y))
+		-- clamp to screen
+		local clampedX = math.clamp(newPos.X.Offset, 0, playerGui.AbsoluteSize.X - floatBtn.AbsoluteSize.X)
+		local clampedY = math.clamp(newPos.Y.Offset, 0, playerGui.AbsoluteSize.Y - floatBtn.AbsoluteSize.Y)
+		floatBtn.Position = UDim2.new(0, clampedX, 0, clampedY)
+		-- also reposition menu relative to button (below it)
+		menu.Position = UDim2.new(0, clampedX, 0, clampedY + floatBtn.AbsoluteSize.Y + 6)
+	end
+end)
+
+-- Button behaviors (safe local demos)
+local function findBtn(name)
+	return btnContainer:FindFirstChild(name)
+end
+
+-- 1) GetPremium -> toggle local premium
+local gp = findBtn("GetPremium")
+if gp then
+	gp.MouseButton1Click:Connect(function()
+		isLocalPremium = not isLocalPremium
+		if isLocalPremium then
+			gp.Text = "Revoke Premium"
+			floatBtn.TextColor3 = Color3.fromRGB(255,215,90)
+			dot.BackgroundColor3 = Color3.fromRGB(255,160,40)
+		else
+			gp.Text = "Get Premium"
+			floatBtn.TextColor3 = Color3.fromRGB(245,245,245)
+			dot.BackgroundColor3 = Color3.fromRGB(255,200,50)
+		end
+		-- small feedback tween
+		TweenService:Create(gp, TweenInfo.new(0.12, Enum.EasingStyle.Back), {Size = UDim2.new(1, -4, 0, 48)}):Play()
+		delay(0.12, function()
+			TweenService:Create(gp, TweenInfo.new(0.12, Enum.EasingStyle.Back), {Size = UDim2.new(1, -4, 0, 44)}):Play()
+		end)
+	end)
+end
+
+-- 2) FastNEW -> show temporary toast
+local fn = findBtn("FastNEW")
+if fn then
+	fn.MouseButton1Click:Connect(function()
+		-- show a small temporary notification inside menu
+		local toast = Instance.new("TextLabel", inner)
+		toast.Size = UDim2.new(1, -24, 0, 36)
+		toast.Position = UDim2.new(0,12,1, -46)
+		toast.AnchorPoint = Vector2.new(0,0)
+		toast.BackgroundColor3 = Color3.fromRGB(48,48,60)
+		toast.Text = "FastNEW: created new slot (demo)"
+		toast.Font = Enum.Font.Gotham
+		toast.TextSize = 14
+		toast.TextColor3 = Color3.fromRGB(230,230,230)
+		toast.BorderSizePixel = 0
+		TweenService:Create(toast, TweenInfo.new(0.2), {BackgroundTransparency = 0}):Play()
+		delay(1.6, function() toast:Destroy() end)
+	end)
+end
+
+-- 3) Basic -> toggles basic preset demo
+local bs = findBtn("Basic")
+if bs then
+	local on = false
+	bs.MouseButton1Click:Connect(function()
+		on = not on
+		bs.Text = on and "Basic (ON)" or "Basic"
+		-- quick color flash
+		local t = TweenService:Create(bs, TweenInfo.new(0.12), {BackgroundColor3 = on and Color3.fromRGB(60,90,60) or Color3.fromRGB(40,40,50)})
+		t:Play()
+		delay(0.2, function()
+			TweenService:Create(bs, TweenInfo.new(0.12), {BackgroundColor3 = Color3.fromRGB(40,40,50)}):Play()
+		end)
+	end)
+end
+
+-- 4) Paste -> open small input box to paste text (local)
+local pasteBox
+local pbtn = findBtn("Paste")
+if pbtn then
+	pbtn.MouseButton1Click:Connect(function()
+		if pasteBox and pasteBox.Parent then pasteBox:Destroy() end
+		pasteBox = Instance.new("Frame", inner)
+		pasteBox.Size = UDim2.new(0.94,0,0,88)
+		pasteBox.Position = UDim2.new(0.03,0,0.5, -44)
+		pasteBox.BackgroundColor3 = Color3.fromRGB(18,18,22)
+		pasteBox.BorderSizePixel = 0
+		local tb = Instance.new("TextBox", pasteBox)
+		tb.Size = UDim2.new(1, -12, 0, 44)
+		tb.Position = UDim2.new(0,6,0,8)
+		tb.PlaceholderText = "Paste script or text here (demo)"
+		tb.Text = ""
+		tb.ClearTextOnFocus = false
+		tb.Font = Enum.Font.Code
+		tb.TextSize = 14
+		tb.TextColor3 = Color3.fromRGB(220,220,220)
+		local close = Instance.new("TextButton", pasteBox)
+		close.Size = UDim2.new(0,80,0,26)
+		close.Position = UDim2.new(1, -86, 1, -34)
+		close.Text = "Close"
+		close.Font = TITLE_FONT
+		close.TextSize = 14
+		close.BackgroundColor3 = Color3.fromRGB(60,60,70)
+		close.BorderSizePixel = 0
+		close.MouseButton1Click:Connect(function() pasteBox:Destroy() end)
+	end)
+end
+
+-- 5) Copy Link -> shows a link you can manually copy (no system clipboard access)
+local cl = findBtn("CopyLink")
+if cl then
+	cl.MouseButton1Click:Connect(function()
+		local popup = Instance.new("Frame", inner)
+		popup.Size = UDim2.new(0.94,0,0,56)
+		popup.Position = UDim2.new(0.03,0,0.5, -56)
+		popup.BackgroundColor3 = Color3.fromRGB(18,18,22)
+		local lab = Instance.new("TextLabel", popup)
+		lab.Size = UDim2.new(1, -12, 0, 36)
+		lab.Position = UDim2.new(0,6,0,8)
+		lab.BackgroundTransparency = 1
+		lab.Font = Enum.Font.Code
+		lab.TextSize = 14
+		lab.TextColor3 = Color3.fromRGB(220,220,220)
+		lab.Text = "Link (demo): https://example.com/premium"
+		delay(2.2, function() if popup and popup.Parent then popup:Destroy() end end)
+	end)
+end
+
+-- 6) Get Key -> simulate fetching a key (local)
+local gk = findBtn("GetKey")
+if gk then
+	gk.MouseButton1Click:Connect(function()
+		gk.Text = "Getting..."
+		wait(0.7)
+		gk.Text = "Key: DEMO-1234-KEY"
+		wait(1.6)
+		gk.Text = "Get Key"
+	end)
+end
+
+-- 7) Verify Key -> simulate verification
+local vk = findBtn("VerifyKey")
+if vk then
+	vk.MouseButton1Click:Connect(function()
+		vk.Text = "Verifying..."
+		wait(0.9)
+		vk.Text = "Invalid (demo)"
+		wait(1.4)
+		vk.Text = "Verify Key"
+	end)
+end
+
+-- 8) OpenEditor -> opens a simple editor area
+local oe = findBtn("OpenEditor")
+if oe then
+	oe.MouseButton1Click:Connect(function()
+		-- open a simple editor: big TextBox in inner
+		local editor = inner:FindFirstChild("SimpleEditor")
+		if editor then editor:Destroy() end
+		editor = Instance.new("Frame", inner)
+		editor.Name = "SimpleEditor"
+		editor.Size = UDim2.new(1, -24, 0, 140)
+		editor.Position = UDim2.new(0,12,1, -150)
+		editor.BackgroundColor3 = Color3.fromRGB(16,16,20)
+		editor.BorderSizePixel = 0
+
+		local tb = Instance.new("TextBox", editor)
+		tb.Size = UDim2.new(1, -12, 1, -36)
+		tb.Position = UDim2.new(0,6,0,6)
+		tb.ClearTextOnFocus = false
+		tb.Text = "-- Simple editor (local demo)"
+		tb.Font = Enum.Font.Code
+		tb.TextSize = 14
+		tb.TextColor3 = Color3.fromRGB(210,210,210)
+
+		local close = Instance.new("TextButton", editor)
+		close.Size = UDim2.new(0,80,0,26)
+		close.Position = UDim2.new(1, -86, 1, -34)
+		close.Text = "Close"
+		close.Font = TITLE_FONT
+		close.TextSize = 14
+		close.BackgroundColor3 = Color3.fromRGB(60,60,70)
+		close.BorderSizePixel = 0
+		close.MouseButton1Click:Connect(function() editor:Destroy() end)
+	end)
+end
+
+-- 9) Settings -> demo toggles
+local st = findBtn("Settings")
+if st then
+	st.MouseButton1Click:Connect(function()
+		local sPopup = Instance.new("Frame", inner)
+		sPopup.Size = UDim2.new(0.9, 0, 0, 110)
+		sPopup.Position = UDim2.new(0.05, 0, 1, -120)
+		sPopup.BackgroundColor3 = Color3.fromRGB(18,18,22)
+		local lbl = Instance.new("TextLabel", sPopup)
+		lbl.Size = UDim2.new(1, -12, 0, 26)
+		lbl.Position = UDim2.new(0,6,0,8)
+		lbl.BackgroundTransparency = 1
+		lbl.Font = TITLE_FONT
+		lbl.TextSize = 14
+		lbl.Text = "Settings (demo)"
+		local btnA = Instance.new("TextButton", sPopup)
+		btnA.Size = UDim2.new(0.48, -8, 0, 30)
+		btnA.Position = UDim2.new(0,6,0,40)
+		btnA.Text = "Toggle A"
+		btnA.Font = Enum.Font.Gotham
+		btnA.MouseButton1Click:Connect(function()
+			btnA.Text = (btnA.Text == "Toggle A" and "A: ON") or "Toggle A"
+		end)
+		local btnB = btnA:Clone()
+		btnB.Parent = sPopup
+		btnB.Position = UDim2.new(0,12 + btnA.AbsoluteSize.X, 0, 40)
+		btnB.Text = "Toggle B"
+		btnB.MouseButton1Click:Connect(function()
+			btnB.Text = (btnB.Text == "Toggle B" and "B: ON") or "Toggle B"
+		end)
+		delay(2.6, function() if sPopup and sPopup.Parent then sPopup:Destroy() end end)
+	end)
+end
+
+-- Keyboard P toggles menu
+UserInputService.InputBegan:Connect(function(input, gprocessed)
+	if gprocessed then return end
+	if input.KeyCode == Enum.KeyCode.P then
+		if menuOpen then closeMenu() else openMenu() end
+	end
+end)
+
+-- Initialize: small intro pulse
+TweenService:Create(floatBtn, TweenInfo.new(0.6, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut, -1, true), {Size = UDim2.new(0,68,0,68)}):Play()
+delay(0.6, function() TweenService:Create(floatBtn, TweenInfo.new(0.12), {Size = BTN_SIZE}):Play() end)
+
+-- make sure menu positions relative to floatBtn at any time
+game:GetService("RunService").Heartbeat:Connect(function()
+	if floatBtn and menu then
+		local x = floatBtn.AbsolutePosition.X
+		local y = floatBtn.AbsolutePosition.Y
+		local newY = y + floatBtn.AbsoluteSize.Y + 6
+		local clampedX = math.clamp(x, 6, playerGui.AbsoluteSize.X - MENU_WIDTH - 6)
+		local clampedY = math.clamp(newY, 6, playerGui.AbsoluteSize.Y - MENU_HEIGHT - 6)
+		-- move menu smoothly (set position directly keeps it synced)
+		menu.Position = UDim2.new(0, clampedX, 0, clampedY)
+	end
+end)
+
+-- final note printed to output (for developer)
+print("[VideoStyleMenuGUI] Local GUI loaded (demo only). No exploits, no server calls.")
