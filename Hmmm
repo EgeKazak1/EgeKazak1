@@ -1,25 +1,22 @@
--- Inline loadstring: komple scripti string içinde barındırır ve hemen çalıştırır.
--- Bunu bir LocalScript içine yapıştırabilirsin (StarterPlayerScripts).
-local code = [[
--- Local demo menu (client-side only) 
+-- Full enhanced demo admin menu (client-only)
 -- Put this LocalScript into StarterPlayerScripts
 
 local Players = game:GetService("Players")
 local TweenService = game:GetService("TweenService")
 local UserInputService = game:GetService("UserInputService")
 local StarterGui = game:GetService("StarterGui")
+local RunService = game:GetService("RunService")
 
 local player = Players.LocalPlayer
 local playerGui = player:WaitForChild("PlayerGui")
 
 -- SETTINGS
 local BTN_SIZE = UDim2.new(0,48,0,48)
-local MENU_WIDTH = 360
-local MENU_HEIGHT = 380
-local TWEEN_TIME = 0.25
+local MENU_WIDTH = 380
+local MENU_HEIGHT = 420
+local TWEEN_TIME = 0.22
 local TITLE_FONT = Enum.Font.GothamBold
 
--- helper: send notification
 local function notify(title, text, duration)
 	pcall(function()
 		StarterGui:SetCore("SendNotification", {
@@ -30,24 +27,29 @@ local function notify(title, text, duration)
 	end)
 end
 
--- create ScreenGui
+-- Clear any old GUI
+for _,g in pairs(playerGui:GetChildren()) do
+	if g.Name == "DemoAdminMenuGUI" then g:Destroy() end
+end
+
+-- SCREEN GUI
 local screenGui = Instance.new("ScreenGui")
 screenGui.Name = "DemoAdminMenuGUI"
 screenGui.ResetOnSpawn = false
 screenGui.Parent = playerGui
 
--- top draggable button
+-- TOP BUTTON (draggable)
 local topBtn = Instance.new("Frame")
 topBtn.Name = "TopButton"
 topBtn.Size = BTN_SIZE
 topBtn.Position = UDim2.new(0,16,0,16)
 topBtn.AnchorPoint = Vector2.new(0,0)
-topBtn.BackgroundColor3 = Color3.fromRGB(30,30,30)
+topBtn.BackgroundColor3 = Color3.fromRGB(28,28,28)
 topBtn.BorderSizePixel = 0
 topBtn.Parent = screenGui
-topBtn.ZIndex = 5
+topBtn.ZIndex = 50
+Instance.new("UICorner", topBtn).CornerRadius = UDim.new(0,10)
 
-local uicorner = Instance.new("UICorner", topBtn); uicorner.CornerRadius = UDim.new(0,10)
 local icon = Instance.new("TextLabel", topBtn)
 icon.Size = UDim2.fromScale(1,1)
 icon.BackgroundTransparency = 1
@@ -57,20 +59,20 @@ icon.TextSize = 24
 icon.TextColor3 = Color3.fromRGB(255,214,102)
 icon.RichText = false
 
--- main menu frame (hidden initially)
+-- MAIN MENU FRAME
 local menu = Instance.new("Frame")
 menu.Name = "Menu"
 menu.Size = UDim2.new(0, MENU_WIDTH, 0, MENU_HEIGHT)
 menu.Position = UDim2.new(0,16,0,80)
 menu.AnchorPoint = Vector2.new(0,0)
-menu.BackgroundColor3 = Color3.fromRGB(18,18,18)
+menu.BackgroundColor3 = Color3.fromRGB(16,16,16)
 menu.BorderSizePixel = 0
 menu.Visible = false
 menu.Parent = screenGui
-menu.ZIndex = 4
+menu.ZIndex = 49
 Instance.new("UICorner", menu).CornerRadius = UDim.new(0,12)
 
--- header with title, resize buttons and X
+-- HEADER
 local header = Instance.new("Frame", menu)
 header.Size = UDim2.new(1,0,0,44)
 header.Position = UDim2.new(0,0,0,0)
@@ -82,14 +84,13 @@ title.Position = UDim2.new(0,12,0,0)
 title.BackgroundTransparency = 1
 title.Font = TITLE_FONT
 title.TextSize = 20
-title.Text = "Demo Admin Menu"
+title.Text = "Ultimate Demo Menu"
 title.TextColor3 = Color3.fromRGB(230,230,230)
 title.TextXAlignment = Enum.TextXAlignment.Left
 
 local btnClose = Instance.new("TextButton", header)
 btnClose.Size = UDim2.new(0,36,0,28)
 btnClose.Position = UDim2.new(1,-44,0,8)
-btnClose.AnchorPoint = Vector2.new(0,0)
 btnClose.BackgroundColor3 = Color3.fromRGB(55,55,55)
 btnClose.Text = "X"
 btnClose.Font = TITLE_FONT
@@ -115,12 +116,12 @@ btnDec.Font = TITLE_FONT
 btnDec.TextSize = 18
 Instance.new("UICorner", btnDec).CornerRadius = UDim.new(0,6)
 
--- content area
+-- CONTENT (scrolling)
 local content = Instance.new("ScrollingFrame", menu)
-content.Size = UDim2.new(1,-24,1,-64)
+content.Size = UDim2.new(1,-24,1,-78)
 content.Position = UDim2.new(0,12,0,52)
 content.CanvasSize = UDim2.new(0,0,0,0)
-content.ScrollBarThickness = 6
+content.ScrollBarThickness = 8
 content.BackgroundTransparency = 1
 content.VerticalScrollBarPosition = Enum.VerticalScrollBarPosition.Right
 
@@ -128,25 +129,25 @@ local uiList = Instance.new("UIListLayout", content)
 uiList.SortOrder = Enum.SortOrder.LayoutOrder
 uiList.Padding = UDim.new(0,8)
 
--- selected target display
+-- Selected target label
 local selectedLabel = Instance.new("TextLabel", menu)
-selectedLabel.Size = UDim2.new(1,-24,0,28)
+selectedLabel.Size = UDim2.new(1,-24,0,24)
 selectedLabel.Position = UDim2.new(0,12,1,-44)
 selectedLabel.BackgroundTransparency = 1
 selectedLabel.Font = Enum.Font.SourceSans
-selectedLabel.TextSize = 16
+selectedLabel.TextSize = 14
 selectedLabel.Text = "Hedef: Yok"
 selectedLabel.TextColor3 = Color3.fromRGB(200,200,200)
 selectedLabel.TextXAlignment = Enum.TextXAlignment.Left
 
--- utility: create button
+-- helper: make button
 local function makeButton(text, parent, callback)
 	local btn = Instance.new("TextButton")
-	btn.Size = UDim2.new(1,0,0,42)
-	btn.BackgroundColor3 = Color3.fromRGB(40,40,40)
+	btn.Size = UDim2.new(1,0,0,40)
+	btn.BackgroundColor3 = Color3.fromRGB(36,36,36)
 	btn.BorderSizePixel = 0
 	btn.Font = TITLE_FONT
-	btn.TextSize = 16
+	btn.TextSize = 15
 	btn.Text = text
 	btn.TextColor3 = Color3.fromRGB(240,240,240)
 	Instance.new("UICorner", btn).CornerRadius = UDim.new(0,8)
@@ -157,19 +158,20 @@ local function makeButton(text, parent, callback)
 	return btn
 end
 
--- player selector area
+-- PLAYERS LIST UI
 local playersLabel = Instance.new("TextLabel", content)
-playersLabel.Size = UDim2.new(1,0,0,24)
+playersLabel.Size = UDim2.new(1,0,0,18)
 playersLabel.BackgroundTransparency = 1
 playersLabel.Font = Enum.Font.SourceSansSemibold
 playersLabel.TextSize = 14
-playersLabel.Text = "Oyuncular (seçmek için isim üzerine tıkla):"
-playersLabel.TextColor3 = Color3.fromRGB(180,180,180)
+playersLabel.Text = "Oyuncular (tıklayarak hedefle):"
+playersLabel.TextColor3 = Color3.fromRGB(190,190,190)
 playersLabel.TextXAlignment = Enum.TextXAlignment.Left
 
 local playersList = Instance.new("Frame", content)
 playersList.Size = UDim2.new(1,0,0,120)
 playersList.BackgroundTransparency = 1
+
 local plScroll = Instance.new("ScrollingFrame", playersList)
 plScroll.Size = UDim2.new(1,0,1,0)
 plScroll.CanvasSize = UDim2.new(0,0,0,0)
@@ -181,14 +183,13 @@ plLayout.Padding = UDim.new(0,6)
 local selectedTarget = nil
 
 local function refreshPlayers()
-	-- clear
 	for _,v in pairs(plScroll:GetChildren()) do
 		if v:IsA("TextButton") then v:Destroy() end
 	end
 	for i,p in pairs(Players:GetPlayers()) do
 		if p ~= player then
 			local b = Instance.new("TextButton")
-			b.Size = UDim2.new(1,0,0,28)
+			b.Size = UDim2.new(1,0,0,26)
 			b.BackgroundColor3 = Color3.fromRGB(60,60,60)
 			b.BorderSizePixel = 0
 			b.Font = Enum.Font.SourceSans
@@ -199,25 +200,28 @@ local function refreshPlayers()
 			b.MouseButton1Click:Connect(function()
 				selectedTarget = p
 				selectedLabel.Text = "Hedef: " .. p.Name
-				notify("Hedef seçildi", p.Name)
+				notify("Hedef seçildi", p.Name, 2)
 			end)
 		end
 	end
 	-- adjust canvas size
 	local total = 0
-	for _,obj in pairs(plScroll:GetDescendants()) do
+	for _,obj in pairs(plScroll:GetChildren()) do
 		if obj:IsA("TextButton") then total = total + obj.Size.Y.Offset + plLayout.Padding.Offset end
 	end
 	plScroll.CanvasSize = UDim2.new(0,0,0, math.max(total, 120))
 end
 
 Players.PlayerAdded:Connect(refreshPlayers)
-Players.PlayerRemoving:Connect(function() refreshPlayers() if selectedTarget and not selectedTarget.Parent then selectedTarget = nil selectedLabel.Text = "Hedef: Yok" end end)
+Players.PlayerRemoving:Connect(function()
+	refreshPlayers()
+	if selectedTarget and not selectedTarget.Parent then selectedTarget = nil selectedLabel.Text = "Hedef: Yok" end
+end)
 refreshPlayers()
 
--- DEMO buttons (client-side safe actions)
+-- ACTION BUTTONS (rich set)
 makeButton("Mock: Unlock ALL Gamepasses (demo)", content, function()
-	-- This is a local mock; DOES NOT actually buy or unlock anything on the server.
+	-- DEMO only: does NOT purchase or change server ownership
 	notify("Demo", "Tüm gamepass'ler yerel olarak açıldı (demo). Gerçekte satın alma yapılmadı.", 4)
 end)
 
@@ -227,7 +231,41 @@ makeButton("Kill (self)", content, function()
 		local hum = char:FindFirstChildWhichIsA("Humanoid")
 		if hum then
 			hum.Health = 0
-			notify("İşlem", "Kendini öldürdün (lokal).", 2)
+			notify("İşlem", "Kendini öldürdün (yerel).", 2)
+		end
+	end
+end)
+
+makeButton("Speed Boost (x2) - self", content, function()
+	local char = player.Character
+	if char then
+		local hum = char:FindFirstChildWhichIsA("Humanoid")
+		if hum then
+			hum.WalkSpeed = (hum.WalkSpeed or 16) * 2
+			notify("Speed", "Yürüyüş hızı iki katına çıktı.", 2)
+		end
+	end
+end)
+
+makeButton("Jump Boost (+20) - self", content, function()
+	local char = player.Character
+	if char then
+		local hum = char:FindFirstChildWhichIsA("Humanoid")
+		if hum then
+			hum.JumpPower = (hum.JumpPower or 50) + 20
+			notify("Jump", "Zıplama gücü artırıldı.", 2)
+		end
+	end
+end)
+
+makeButton("Reset Walk/Jump (self)", content, function()
+	local char = player.Character
+	if char then
+		local hum = char:FindFirstChildWhichIsA("Humanoid")
+		if hum then
+			hum.WalkSpeed = 16
+			hum.JumpPower = 50
+			notify("Reset", "Hız ve zıplama sıfırlandı.", 2)
 		end
 	end
 end)
@@ -240,32 +278,31 @@ makeButton("Goto (teleport YOU to target)", content, function()
 	local myChar = player.Character
 	local myHRP = myChar and myChar:FindFirstChild("HumanoidRootPart")
 	if targetHRP and myHRP then
-		myHRP.CFrame = targetHRP.CFrame * CFrame.new(2,0,2) -- offset a bit
+		myHRP.CFrame = targetHRP.CFrame * CFrame.new(2,0,2)
 		notify("Teleport", "Hedefin yanına ışınlandın.", 2)
 	end
 end)
 
-makeButton("Bring (move target nearby) - CLIENT ONLY (demo)", content, function()
-	-- You can't move other players from client securely. As a demo we'll move local player near them instead,
-	-- or attach a visual marker on target.
+makeButton("Bring (client marker near target)", content, function()
 	if not selectedTarget or not selectedTarget.Character then
 		notify("Hata", "Önce hedef seçmelisin.", 3); return
 	end
-	-- highlight target
 	local hrp = selectedTarget.Character:FindFirstChild("HumanoidRootPart")
 	if hrp then
-		local marker = Instance.new("Part")
-		marker.Size = Vector3.new(1,1,1)
-		marker.Anchored = true
-		marker.CanCollide = false
-		marker.Transparency = 0.6
-		marker.Name = "DemoMarker"
-		marker.Material = Enum.Material.Neon
-		marker.Color = Color3.fromRGB(100,200,255)
-		marker.CFrame = hrp.CFrame * CFrame.new(0,2,0)
-		marker.Parent = workspace
-		delay(3, function() if marker and marker.Parent then marker:Destroy() end end)
-		notify("Demo", selectedTarget.Name .. " için işaret yerleştirildi.", 3)
+		-- attach a tether visual (Beam-like) - using part markers
+		local anchor = Instance.new("Part")
+		anchor.Name = "DemoBringAnchor_"..selectedTarget.Name
+		anchor.Size = Vector3.new(1,1,1)
+		anchor.Anchored = true
+		anchor.CanCollide = false
+		anchor.Transparency = 0.5
+		anchor.Material = Enum.Material.Neon
+		anchor.Color = Color3.fromRGB(100,200,255)
+		anchor.CFrame = hrp.CFrame * CFrame.new(0,2,0)
+		anchor.Parent = workspace
+		-- destroy after 4s
+		delay(4, function() if anchor and anchor.Parent then anchor:Destroy() end end)
+		notify("Bring (demo)", selectedTarget.Name .. " için işaret bırakıldı (client-side).", 3)
 	end
 end)
 
@@ -273,37 +310,78 @@ makeButton("Highlight Target (billboard)", content, function()
 	if not selectedTarget or not selectedTarget.Character then
 		notify("Hata", "Önce hedef seçmelisin.", 3); return
 	end
-	-- add a short-lived BillboardGui
-	local char = selectedTarget.Character
-	if char then
-		local head = char:FindFirstChild("Head")
-		if head then
-			local bg = Instance.new("BillboardGui")
-			bg.Size = UDim2.new(0,120,0,40)
-			bg.StudsOffset = Vector3.new(0,2.5,0)
-			bg.AlwaysOnTop = true
-			bg.Parent = head
-			local label = Instance.new("TextLabel", bg)
-			label.Size = UDim2.fromScale(1,1)
-			label.BackgroundTransparency = 0.5
-			label.Text = "TARGET: " .. selectedTarget.Name
-			label.Font = TITLE_FONT
-			label.TextSize = 14
-			label.TextColor3 = Color3.fromRGB(255,255,255)
-			label.BackgroundColor3 = Color3.fromRGB(60,60,60)
-			delay(4, function() if bg and bg.Parent then bg:Destroy() end end)
-			notify("Vurgulandı", selectedTarget.Name, 2)
-		end
+	local head = selectedTarget.Character:FindFirstChild("Head")
+	if head then
+		local bg = Instance.new("BillboardGui")
+		bg.Size = UDim2.new(0,160,0,50)
+		bg.StudsOffset = Vector3.new(0,2.5,0)
+		bg.AlwaysOnTop = true
+		bg.Parent = head
+		local label = Instance.new("TextLabel", bg)
+		label.Size = UDim2.fromScale(1,1)
+		label.BackgroundTransparency = 0.35
+		label.Text = "TARGET: " .. selectedTarget.Name
+		label.Font = TITLE_FONT
+		label.TextSize = 16
+		label.TextColor3 = Color3.fromRGB(255,255,255)
+		label.BackgroundColor3 = Color3.fromRGB(40,40,40)
+		delay(4, function() if bg and bg.Parent then bg:Destroy() end end)
+		notify("Vurgulandı", selectedTarget.Name, 2)
 	end
 end)
 
--- small utility buttons example
-makeButton("Refresh player list", content, function()
-	refreshPlayers()
-	notify("Tamam", "Oyuncu listesi yenilendi.")
+makeButton("Local Explosion Visual (harmless)", content, function()
+	if not selectedTarget or not selectedTarget.Character then
+		notify("Hata", "Önce hedef seçmelisin.", 3); return
+	end
+	local hrp = selectedTarget.Character:FindFirstChild("HumanoidRootPart")
+	if hrp then
+		local p = Instance.new("Part")
+		p.Size = Vector3.new(1,1,1)
+		p.Anchored = true
+		p.CanCollide = false
+		p.Transparency = 1
+		p.CFrame = hrp.CFrame
+		p.Parent = workspace
+		local ps = Instance.new("ParticleEmitter", p)
+		ps.Size = NumberSequence.new{NumberSequenceKeypoint.new(0,1), NumberSequenceKeypoint.new(1,5)}
+		ps.Rate = 200
+		ps.Lifetime = NumberRange.new(0.4)
+		ps.Speed = NumberRange.new(40)
+		ps.Enabled = true
+		delay(0.6, function() ps.Enabled = false end)
+		delay(2, function() if p and p.Parent then p:Destroy() end end)
+		notify("Efekt", "Local explosion görseli oynatıldı.", 2)
+	end
 end)
 
--- OPEN/CLOSE animation
+makeButton("Spawn Local Vehicle (visual)", content, function()
+	-- spawns a decorative "car" part near player (client-only)
+	local myChar = player.Character
+	local myHRP = myChar and myChar:FindFirstChild("HumanoidRootPart")
+	if myHRP then
+		local v = Instance.new("Model")
+		v.Name = "LocalVehicle"
+		local body = Instance.new("Part")
+		body.Size = Vector3.new(4,1.2,6)
+		body.Anchored = true
+		body.CanCollide = false
+		body.Material = Enum.Material.SmoothPlastic
+		body.Color = Color3.fromRGB(80,80,200)
+		body.CFrame = myHRP.CFrame * CFrame.new(0,0,-8)
+		body.Parent = v
+		v.Parent = workspace
+		delay(12, function() if v and v.Parent then v:Destroy() end end)
+		notify("Araç", "Local araç oluşturuldu (görsel).", 3)
+	end
+end)
+
+makeButton("Refresh player list", content, function()
+	refreshPlayers()
+	notify("Tamam", "Oyuncu listesi yenilendi.", 2)
+end)
+
+-- OPEN/CLOSE
 local isOpen = false
 local function openMenu()
 	if isOpen then return end
@@ -326,29 +404,27 @@ topBtn.InputBegan:Connect(function(input)
 		if debounce then return end
 		debounce = true
 		if isOpen then closeMenu() else openMenu() end
-		wait(0.2)
+		wait(0.18)
 		debounce = false
 	end
 end)
-
--- close X
 btnClose.MouseButton1Click:Connect(function() closeMenu() end)
 
--- resize handlers (+ / -)
+-- resize handlers
 btnInc.MouseButton1Click:Connect(function()
-	local newW = math.min(MENU_WIDTH + 80, 800)
-	local newH = math.min(MENU_HEIGHT + 80, 700)
+	local newW = math.min(MENU_WIDTH + 80, 900)
+	local newH = math.min(MENU_HEIGHT + 80, 900)
 	MENU_WIDTH = newW MENU_HEIGHT = newH
 	menu.Size = UDim2.new(0, MENU_WIDTH, 0, MENU_HEIGHT)
 end)
 btnDec.MouseButton1Click:Connect(function()
-	local newW = math.max(MENU_WIDTH - 80, 220)
+	local newW = math.max(MENU_WIDTH - 80, 240)
 	local newH = math.max(MENU_HEIGHT - 80, 160)
 	MENU_WIDTH = newW MENU_HEIGHT = newH
 	menu.Size = UDim2.new(0, MENU_WIDTH, 0, MENU_HEIGHT)
 end)
 
--- draggable top button
+-- DRAGGING TOP BUTTON
 local dragging = false
 local dragInput, dragStart, startPos
 local function updateDrag(input)
@@ -381,21 +457,17 @@ UserInputService.InputChanged:Connect(function(input)
 	end
 end)
 
--- initial small animation to draw attention
+-- small attention animation
 spawn(function()
 	TweenService:Create(topBtn, TweenInfo.new(0.6, Enum.EasingStyle.Sine, Enum.EasingDirection.Out, -1, true), {Size = UDim2.new(0,52,0,52)}):Play()
 	wait(1.2)
 	TweenService:Create(topBtn, TweenInfo.new(0.1), {Size = BTN_SIZE}):Play()
 end)
 
--- done
-notify("Demo Menü Yüklendi", "Örnek menü hazır. Bu menü sadece istemci tarafında çalışır ve hile amaçlı değildir.", 4)
-]]
+-- adjust content canvas size when UIListLayout resizes
+uiList:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(function()
+	content.CanvasSize = UDim2.new(0,0,0, uiList.AbsoluteContentSize.Y + 12)
+end)
 
--- execute the string
-local fn = loadstring(code)
-if fn then
-	pcall(fn)
-else
-	warn("loadstring yok veya yüklenemedi.")
-end
+-- final notification
+notify("Demo Menü Yüklendi", "Güncellenmiş menü yüklendi — tüm işlemler client-side demo niteliğindedir.", 4)
