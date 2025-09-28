@@ -1,7 +1,4 @@
--- LocalScript olarak StarterPlayerScripts içine yapıştır
--- Bu script loadstring ile gömülü demo menüyü çalıştırır (client-side demo).
-local code = [[
--- Full enhanced demo admin menu (client-only)
+-- Updated demo menu: buttons made clearly visible
 -- Put this LocalScript into StarterPlayerScripts
 
 local Players = game:GetService("Players")
@@ -40,6 +37,7 @@ local screenGui = Instance.new("ScreenGui")
 screenGui.Name = "DemoAdminMenuGUI"
 screenGui.ResetOnSpawn = false
 screenGui.Parent = playerGui
+screenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
 
 -- TOP BUTTON (draggable)
 local topBtn = Instance.new("Frame")
@@ -61,6 +59,7 @@ icon.Font = TITLE_FONT
 icon.TextSize = 24
 icon.TextColor3 = Color3.fromRGB(255,214,102)
 icon.RichText = false
+icon.ZIndex = 51
 
 -- MAIN MENU FRAME
 local menu = Instance.new("Frame")
@@ -80,6 +79,7 @@ local header = Instance.new("Frame", menu)
 header.Size = UDim2.new(1,0,0,44)
 header.Position = UDim2.new(0,0,0,0)
 header.BackgroundTransparency = 1
+header.ZIndex = 60
 
 local title = Instance.new("TextLabel", header)
 title.Size = UDim2.new(0.6,0,1,0)
@@ -90,34 +90,38 @@ title.TextSize = 20
 title.Text = "Ultimate Demo Menu"
 title.TextColor3 = Color3.fromRGB(230,230,230)
 title.TextXAlignment = Enum.TextXAlignment.Left
+title.ZIndex = 61
 
 local btnClose = Instance.new("TextButton", header)
 btnClose.Size = UDim2.new(0,36,0,28)
 btnClose.Position = UDim2.new(1,-44,0,8)
-btnClose.BackgroundColor3 = Color3.fromRGB(55,55,55)
+btnClose.BackgroundColor3 = Color3.fromRGB(200,60,60) -- kırmızı X daha görünür
 btnClose.Text = "X"
 btnClose.Font = TITLE_FONT
 btnClose.TextSize = 18
 btnClose.TextColor3 = Color3.fromRGB(255,255,255)
 Instance.new("UICorner", btnClose).CornerRadius = UDim.new(0,6)
+btnClose.ZIndex = 61
 
 local btnInc = Instance.new("TextButton", header)
 btnInc.Size = UDim2.new(0,28,0,28)
 btnInc.Position = UDim2.new(1,-92,0,8)
-btnInc.BackgroundColor3 = Color3.fromRGB(50,50,50)
+btnInc.BackgroundColor3 = Color3.fromRGB(70,70,70)
 btnInc.Text = "+"
 btnInc.Font = TITLE_FONT
 btnInc.TextSize = 18
 Instance.new("UICorner", btnInc).CornerRadius = UDim.new(0,6)
+btnInc.ZIndex = 61
 
 local btnDec = Instance.new("TextButton", header)
 btnDec.Size = UDim2.new(0,28,0,28)
 btnDec.Position = UDim2.new(1,-62,0,8)
-btnDec.BackgroundColor3 = Color3.fromRGB(50,50,50)
+btnDec.BackgroundColor3 = Color3.fromRGB(70,70,70)
 btnDec.Text = "−"
 btnDec.Font = TITLE_FONT
 btnDec.TextSize = 18
 Instance.new("UICorner", btnDec).CornerRadius = UDim.new(0,6)
+btnDec.ZIndex = 61
 
 -- CONTENT (scrolling)
 local content = Instance.new("ScrollingFrame", menu)
@@ -127,6 +131,7 @@ content.CanvasSize = UDim2.new(0,0,0,0)
 content.ScrollBarThickness = 8
 content.BackgroundTransparency = 1
 content.VerticalScrollBarPosition = Enum.VerticalScrollBarPosition.Right
+content.ZIndex = 48
 
 local uiList = Instance.new("UIListLayout", content)
 uiList.SortOrder = Enum.SortOrder.LayoutOrder
@@ -142,19 +147,25 @@ selectedLabel.TextSize = 14
 selectedLabel.Text = "Hedef: Yok"
 selectedLabel.TextColor3 = Color3.fromRGB(200,200,200)
 selectedLabel.TextXAlignment = Enum.TextXAlignment.Left
+selectedLabel.ZIndex = 61
 
--- helper: make button
+-- helper: make button (VISIBLE FIXED)
 local function makeButton(text, parent, callback)
 	local btn = Instance.new("TextButton")
 	btn.Size = UDim2.new(1,0,0,40)
-	btn.BackgroundColor3 = Color3.fromRGB(36,36,36)
+	btn.BackgroundColor3 = Color3.fromRGB(46,134,193) -- kontrastlı arkaplan (mavi)
+	btn.BackgroundTransparency = 0 -- kesin görünür
 	btn.BorderSizePixel = 0
 	btn.Font = TITLE_FONT
 	btn.TextSize = 15
 	btn.Text = text
-	btn.TextColor3 = Color3.fromRGB(240,240,240)
+	btn.TextColor3 = Color3.fromRGB(255,255,255) -- beyaz okunur yazı
+	btn.TextTransparency = 0
+	btn.TextWrapped = true
+	btn.TextScaled = false -- isteğe bağlı true yapılabilir
 	Instance.new("UICorner", btn).CornerRadius = UDim.new(0,8)
 	btn.Parent = parent
+	btn.ZIndex = 62
 	btn.MouseButton1Click:Connect(function()
 		pcall(callback)
 	end)
@@ -168,17 +179,20 @@ playersLabel.BackgroundTransparency = 1
 playersLabel.Font = Enum.Font.SourceSansSemibold
 playersLabel.TextSize = 14
 playersLabel.Text = "Oyuncular (tıklayarak hedefle):"
-playersLabel.TextColor3 = Color3.fromRGB(190,190,190)
+playersLabel.TextColor3 = Color3.fromRGB(240,240,240)
 playersLabel.TextXAlignment = Enum.TextXAlignment.Left
+playersLabel.ZIndex = 62
 
 local playersList = Instance.new("Frame", content)
 playersList.Size = UDim2.new(1,0,0,120)
 playersList.BackgroundTransparency = 1
+playersList.ZIndex = 62
 
 local plScroll = Instance.new("ScrollingFrame", playersList)
 plScroll.Size = UDim2.new(1,0,1,0)
 plScroll.CanvasSize = UDim2.new(0,0,0,0)
 plScroll.ScrollBarThickness = 6
+plScroll.ZIndex = 62
 local plLayout = Instance.new("UIListLayout", plScroll)
 plLayout.SortOrder = Enum.SortOrder.LayoutOrder
 plLayout.Padding = UDim.new(0,6)
@@ -194,12 +208,15 @@ local function refreshPlayers()
 			local b = Instance.new("TextButton")
 			b.Size = UDim2.new(1,0,0,26)
 			b.BackgroundColor3 = Color3.fromRGB(60,60,60)
+			b.BackgroundTransparency = 0
 			b.BorderSizePixel = 0
 			b.Font = Enum.Font.SourceSans
 			b.TextSize = 14
 			b.Text = p.Name
-			b.TextColor3 = Color3.fromRGB(230,230,230)
+			b.TextColor3 = Color3.fromRGB(255,255,255)
+			b.ZIndex = 62
 			b.Parent = plScroll
+			Instance.new("UICorner", b).CornerRadius = UDim.new(0,6)
 			b.MouseButton1Click:Connect(function()
 				selectedTarget = p
 				selectedLabel.Text = "Hedef: " .. p.Name
@@ -222,9 +239,8 @@ Players.PlayerRemoving:Connect(function()
 end)
 refreshPlayers()
 
--- ACTION BUTTONS (rich set)
+-- ACTION BUTTONS (rich set) - all clearly visible now
 makeButton("Mock: Unlock ALL Gamepasses (demo)", content, function()
-	-- DEMO only: does NOT purchase or change server ownership
 	notify("Demo", "Tüm gamepass'ler yerel olarak açıldı (demo). Gerçekte satın alma yapılmadı.", 4)
 end)
 
@@ -292,7 +308,6 @@ makeButton("Bring (client marker near target)", content, function()
 	end
 	local hrp = selectedTarget.Character:FindFirstChild("HumanoidRootPart")
 	if hrp then
-		-- attach a tether visual (Beam-like) - using part markers
 		local anchor = Instance.new("Part")
 		anchor.Name = "DemoBringAnchor_"..selectedTarget.Name
 		anchor.Size = Vector3.new(1,1,1)
@@ -303,7 +318,6 @@ makeButton("Bring (client marker near target)", content, function()
 		anchor.Color = Color3.fromRGB(100,200,255)
 		anchor.CFrame = hrp.CFrame * CFrame.new(0,2,0)
 		anchor.Parent = workspace
-		-- destroy after 4s
 		delay(4, function() if anchor and anchor.Parent then anchor:Destroy() end end)
 		notify("Bring (demo)", selectedTarget.Name .. " için işaret bırakıldı (client-side).", 3)
 	end
@@ -359,7 +373,6 @@ makeButton("Local Explosion Visual (harmless)", content, function()
 end)
 
 makeButton("Spawn Local Vehicle (visual)", content, function()
-	-- spawns a decorative "car" part near player (client-only)
 	local myChar = player.Character
 	local myHRP = myChar and myChar:FindFirstChild("HumanoidRootPart")
 	if myHRP then
@@ -473,22 +486,4 @@ uiList:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(function()
 end)
 
 -- final notification
-notify("Demo Menü Yüklendi", "Güncellenmiş menü yüklendi — tüm işlemler client-side demo niteliğindedir.", 4)
-]]
-
--- try loadstring or load
-local fn
-if loadstring then
-	fn = loadstring(code)
-elseif load then
-	fn = load(code)
-end
-
-if fn then
-	local ok, err = pcall(fn)
-	if not ok then
-		warn("Demo menü yüklenirken hata: ", err)
-	end
-else
-	warn("loadstring veya load kullanılabilir değil. Alternatif: scripti doğrudan bir LocalScript içine yapıştır.")
-end
+notify("Demo Menü Yüklendi", "Butonlar görünür şekilde güncellendi. (Client-side demo)", 4)
